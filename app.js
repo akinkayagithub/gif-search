@@ -1,40 +1,42 @@
 //Require Libraries
+const { response } = require('express');
 const express = require('express');
 const exphbs = require('express-handlebars');
+const Tenor = require("tenorjs").client({
+    // Replace with your own key
+    "Key": "EKMC0ARQC7YY", // https://tenor.com/developer/keyregistration
+    "Filter": "high", // "off", "low", "medium", "high", not case sensitive
+    "Locale": "en_US", // Your locale here, case-sensitivity depends on input
+});
+
 
 //App Setup
 const app = express();
 
 //Middleware
-// app.engine('handlebars', exphbs({defaultLayout: 'main'}));
-
-var hbs = exphbs.create({
+const hbs = exphbs.create({
     defaultLayout: 'main',
 });
+
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
-//Routes
-/*
-app.get('/', (req, res) => {
-    // get url of gif
-    const gifUrl = 'https://media1.tenor.com/images/561c988433b8d71d378c9ccb4b719b6c/tenor.gif?itemid=10058245';
-
-    // res.send('Hello Squirrel');
-    res.render('hello-gif', {gifUrl});
-});
-
-
-app.get('/greetings/:name/', (req, res) => {
-    const name = req.params.name;
-    res.render('greetings', {name});
-});
-*/
 
 app.get('/', (req, res) => {
-    console.log(req.query);
-    res.render('home');
-});
+    // Handle the home page when we haven't queried yet
+    term = ""
+    if (req.query.term) {
+        term = req.query.term
+    }
+    // Tenor.search.Query("SEARCH KEYWORD HERE", "LIMIT HERE")
+    Tenor.Search.Query(term, "10")
+        .then(response => {
+            // store the gifs we get back from the search
+            const gifs = response;
+            // pass the gifs as an object into the home page
+            res.render('home', { gifs })
+        }).catch(console.error);
+  });
 
 //Start server
 const port = 3000;
