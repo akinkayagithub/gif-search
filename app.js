@@ -20,7 +20,7 @@ const hbs = exphbs.create({
 
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
-
+app.use(express.static('public'));
 
 app.get('/', (req, res) => {
     // Handle the home page when we haven't queried yet
